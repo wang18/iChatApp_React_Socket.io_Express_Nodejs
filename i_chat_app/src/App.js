@@ -2,8 +2,8 @@ var React = require('react');
 var createReactClass =require('create-react-class')
 var MessageList = require('./components/messages/messageList');
 var MessageForm = require('./components/messages/messageForm');
-var UserList = require('./components/users/userForm');
-//var UserForm = require('./components/users/userList');
+var UserForm = require('./components/users/userForm');
+var UserList = require('./components/users/userList');
 var io = require('socket.io-client');
 
 var App = createReactClass({
@@ -39,18 +39,30 @@ var App = createReactClass({
     onMessageAdded: function(message){
         this.setState({messages: this.state.messages.concat(message)});
     },
+    emit: function (eventName, payload) {
+      this.socket.emit(eventName,payload);
+    },
+    setUser: function (user) {
+        this.setState({user:user});
+    },
     render: function() {
-      return (
-        <div className="row">
-          <div className="col-md-4">
-            <UserList/>
-          </div>
-          <div className="col-md-8">
-            <MessageList/>
-            <MessageForm/>
-          </div>
-        </div>
-      );
+        if(this.state.user === ''){
+            return(
+                <UserForm emit={this.emit} setUser={this.setUser} />
+            );
+        } else {
+          return (
+            <div className="row">
+              <div className="col-md-4">
+                <UserList users={this.state.users}/>
+              </div>
+              <div className="col-md-8">
+                <MessageList messages={this.state.messages}/>
+                <MessageForm emit={this.emit} user={this.state.user}/>
+              </div>
+            </div>
+          );
+        }
     }
 });
 
